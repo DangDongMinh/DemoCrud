@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-
+import * as actions from './../actions';
+import { connect } from 'react-redux';
 
 
 class Sreach extends Component {
@@ -52,4 +53,14 @@ class Sreach extends Component {
   }
 }
 
-export default Sreach;
+const mapStateToProps = state => ({
+
+});
+
+const mapDispatchToProps = (dispatch, props) => ({
+      onSearch : (keyword) => {
+        dispatch(actions.searchTask(keyword));
+      }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps) (Sreach);

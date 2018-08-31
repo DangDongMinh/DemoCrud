@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import * as actions from '../actions';
 
 class TaskForm extends Component {
 
@@ -8,28 +10,27 @@ class TaskForm extends Component {
       id: '',
       name: '',
       status: false
-    } 
+    };
   }
 
   componentWillMount() {
-    if(this.props.task){
+    if(this.props.itemEditing && this.props.itemEditing.id !== null){
       this.setState({
-        id: this.props.task.id,
-        name: this.props.task.name,
-        status: this.props.task.status
+        id: this.props.itemEditing.id,
+        name: this.props.itemEditing.name,
+        status: this.props.itemEditing.status
       });
-      console.log(this.state);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps && nextProps.task){
+    if(nextProps && nextProps.itemEditing){
       this.setState({
-        id: nextProps.task.id,
-        name: nextProps.task.name,
-        status: nextProps.task.status
+        id: nextProps.itemEditing.id,
+        name: nextProps.itemEditing.name,
+        status: nextProps.itemEditing.status
       });
-    }else if(nextProps && nextProps.task === null){
+    }else if(nextProps && nextProps.itemEditing === null){
       this.setState({
         id: '',
         name: '',
@@ -54,12 +55,13 @@ class TaskForm extends Component {
     });
   }
 
-  onSubmit = (event) => {
+  onSave = (event) => {
     event.preventDefault();
-    this.props.onPlus(this.state); 
+    this.props.onSaveTask(this.state);
     //cancel & close Form
     this.onClear();
     this.onCloseForm();
+
   }
 
   onClear = () => {
@@ -71,6 +73,7 @@ class TaskForm extends Component {
 
   render() {
     var { id } = this.state;
+    if(!this.props.isDisplayForm) return null;
     return (
         <div className="panel panel-warning">
         <div className="panel-heading">
@@ -79,7 +82,7 @@ class TaskForm extends Component {
           </h3>
         </div>
         <div className="panel-body">
-          <form onSubmit={this.onSubmit}>
+          <form onSubmit={this.onSave}>
             <div className="form-group">
               <label>Tên :</label>
               <input
@@ -101,7 +104,10 @@ class TaskForm extends Component {
               <option value={false}>Đang Loading</option>
             </select><br/>
             <div className="text-center">
-              <button type="submit" className="btn btn-warning">
+              <button 
+                type="submit" 
+                className="btn btn-warning"
+              >
                 <span className="fa fa-plus mr-5"></span>Lưu lại
               </button>
               <button 
@@ -122,4 +128,18 @@ class TaskForm extends Component {
   }
 }
 
-export default TaskForm;
+const mapStateToProps = state => ({
+  isDisplayForm : state.isDisplayForm,
+  itemEditing : state.itemEditing
+})
+
+const mapDispatchToProps = (dispatch, props) => ({ 
+    onSaveTask : (task) => {
+      dispatch(actions.saveTask(task));
+    },
+    onCloseForm : () => {
+      dispatch(actions.closeForm());
+    }
+ })
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);
